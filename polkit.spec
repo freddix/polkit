@@ -1,11 +1,12 @@
 Summary:	A framework for defining policy for system-wide components
 Name:		polkit
 Version:	0.104
-Release:	7
+Release:	9
 License:	MIT
 Group:		Libraries
 Source0:	http://hal.freedesktop.org/releases/%{name}-%{version}.tar.gz
 # Source0-md5:	e380b4c6fb1e7bccf854e92edc0a8ce1
+Source1:	%{name}.pamd
 Patch0:		%{name}-fixes.patch
 URL:		http://people.freedesktop.org/~david/polkit-spec.html
 BuildRequires:	autoconf
@@ -23,7 +24,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 Requires:	systemd
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_libexecdir	%{_libdir}/%{name}
+%define		_libexecdir	%{_libdir}/%{name}-1
 
 %description
 PolicyKit is a framework for defining policy for system-wide
@@ -70,7 +71,7 @@ PolicyKit API documentation.
 	--disable-static			\
 	--enable-systemd			\
 	--with-html-dir=%{_gtkdocdir}		\
-	--with-os-type=suse			\
+	--with-os-type=none			\
 	--with-pam-module-dir=/%{_lib}/security
 %{__make}
 
@@ -82,6 +83,8 @@ install -d $RPM_BUILD_ROOT%{_datadir}/polkit-1/actions
 	DESTDIR=$RPM_BUILD_ROOT
 
 rm -f $RPM_BUILD_ROOT%{_libdir}/polkit-1/extensions/*.la
+
+install %{SOURCE1} $RPM_BUILD_ROOT/etc/pam.d/polkit-1
 
 %find_lang %{name}-1
 
