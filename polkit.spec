@@ -1,25 +1,22 @@
 Summary:	A framework for defining policy for system-wide components
 Name:		polkit
-Version:	0.104
-Release:	9
+Version:	0.105
+Release:	2
 License:	MIT
 Group:		Libraries
-Source0:	http://hal.freedesktop.org/releases/%{name}-%{version}.tar.gz
-# Source0-md5:	e380b4c6fb1e7bccf854e92edc0a8ce1
+Source0:	http://www.freedesktop.org/software/polkit/releases/%{name}-%{version}.tar.gz
+# Source0-md5:	9c29e1b6c214f0bd6f1d4ee303dfaed9
 Source1:	%{name}.pamd
-Patch0:		%{name}-fixes.patch
 URL:		http://people.freedesktop.org/~david/polkit-spec.html
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	dbus-glib-devel
 BuildRequires:	expat-devel
-#BuildRequires:	gobject-introspection-devel
-#BuildRequires:	gtk-doc
+BuildRequires:	gobject-introspection-devel
 BuildRequires:	libtool
 BuildRequires:	pam-devel
 BuildRequires:	pkg-config
 BuildRequires:	systemd-devel
-#BuildRequires:	xmlto
 Requires:	%{name}-libs = %{version}-%{release}
 Requires:	systemd
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -55,24 +52,20 @@ PolicyKit API documentation.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
-%if 0
-%{__gtkdocize}
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
 %{__autoheader}
 %{__automake}
-%endif
 %configure \
-	--disable-silent-rules			\
-	--disable-static			\
-	--enable-systemd			\
-	--with-html-dir=%{_gtkdocdir}		\
-	--with-os-type=none			\
-	--with-pam-module-dir=/%{_lib}/security
+	--disable-silent-rules		\
+	--disable-static		\
+	--enable-examples=no		\
+	--enable-systemd		\
+	--with-html-dir=%{_gtkdocdir}	\
+	--with-os-type=none
 %{__make}
 
 %install
@@ -91,8 +84,8 @@ install %{SOURCE1} $RPM_BUILD_ROOT/etc/pam.d/polkit-1
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post	libs -p /sbin/ldconfig
-%postun	libs -p /sbin/ldconfig
+%post	libs -p /usr/sbin/ldconfig
+%postun	libs -p /usr/sbin/ldconfig
 
 %files -f %{name}-1.lang
 %defattr(644,root,root,755)
@@ -137,6 +130,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %attr(755,root,root) %{_bindir}/pkaction
 %attr(755,root,root) %{_bindir}/pkcheck
+%attr(755,root,root) %{_bindir}/pkttyagent
 %attr(755,root,root) %{_libdir}/polkit-1/extensions/libnullbackend.so
 %attr(755,root,root) %{_libexecdir}/polkitd
 
@@ -146,6 +140,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/pkaction.1*
 %{_mandir}/man1/pkcheck.1*
 %{_mandir}/man1/pkexec.1*
+%{_mandir}/man1/pkttyagent.1*
 %{_mandir}/man8/pklocalauthority.8*
 %{_mandir}/man8/polkit.8*
 %{_mandir}/man8/polkitd.8*
@@ -166,7 +161,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libpolkit-agent-1.so.*.*.*
 %attr(755,root,root) %{_libdir}/libpolkit-backend-1.so.*.*.*
 %attr(755,root,root) %{_libdir}/libpolkit-gobject-1.so.*.*.*
-#%{_libdir}/girepository-1.0/*.typelib
+%{_libdir}/girepository-1.0/*.typelib
 
 %files devel
 %defattr(644,root,root,755)
@@ -177,6 +172,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_pkgconfigdir}/polkit-agent-1.pc
 %{_pkgconfigdir}/polkit-backend-1.pc
 %{_pkgconfigdir}/polkit-gobject-1.pc
-#%{_datadir}/gir-1.0/Polkit-1.0.gir
-#%{_datadir}/gir-1.0/PolkitAgent-1.0.gir
+%{_datadir}/gir-1.0/Polkit-1.0.gir
+%{_datadir}/gir-1.0/PolkitAgent-1.0.gir
 
