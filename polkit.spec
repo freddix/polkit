@@ -1,18 +1,21 @@
 Summary:	A framework for defining policy for system-wide components
 Name:		polkit
-Version:	0.105
-Release:	3
+Version:	0.107
+Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/polkit/releases/%{name}-%{version}.tar.gz
-# Source0-md5:	9c29e1b6c214f0bd6f1d4ee303dfaed9
+# Source0-md5:	0e4f9c53f43fd1b25ac3f0d2e09b2ae1
 Source1:	%{name}.pamd
+Patch0:		%{name}-avoid-crashing-if-initializing-the-server-object-fails.patch
+Patch1:		%{name}-fall-back-to-uid0-if-no-admin-users-are-available.patch
 URL:		http://people.freedesktop.org/~david/polkit-spec.html
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	dbus-glib-devel
 BuildRequires:	expat-devel
 BuildRequires:	gobject-introspection-devel
+BuildRequires:	js-devel
 BuildRequires:	libtool
 BuildRequires:	pam-devel
 BuildRequires:	pkg-config
@@ -21,7 +24,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 Requires:	systemd
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_libexecdir	%{_libdir}/%{name}-1
+%define		_libexecdir	%{_prefix}/lib/%{name}-1
 
 %description
 PolicyKit is a framework for defining policy for system-wide
@@ -52,6 +55,8 @@ PolicyKit API documentation.
 
 %prep
 %setup -q
+%patch0 -p1
+%patch1 -p1
 
 %build
 %{__libtoolize}
@@ -84,6 +89,16 @@ install %{SOURCE1} $RPM_BUILD_ROOT/etc/pam.d/polkit-1
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%pre
+%groupadd -g 109 polkitd
+%useradd -u 109 -s /bin/false -c "polkitd pseudo user" -g polkitd polkitd
+
+%postun
+if [ "$1" = "0" ]; then
+    %userremove polkitd
+    %groupremove polkitd
+fi
+
 %post	libs -p /usr/sbin/ldconfig
 %postun	libs -p /usr/sbin/ldconfig
 
@@ -91,57 +106,45 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc AUTHORS README
 
-# The directory /etc/polkit-1/localauthority must be owned
-# by root and have mode 700
-%attr(700,root,root) %dir %{_sysconfdir}/polkit-1/localauthority
-
-%dir %{_sysconfdir}/polkit-1
-%dir %{_sysconfdir}/polkit-1/localauthority.conf.d
-%dir %{_sysconfdir}/polkit-1/localauthority/10-vendor.d
-%dir %{_sysconfdir}/polkit-1/localauthority/20-org.d
-%dir %{_sysconfdir}/polkit-1/localauthority/30-site.d
-%dir %{_sysconfdir}/polkit-1/localauthority/50-local.d
-%dir %{_sysconfdir}/polkit-1/localauthority/90-mandatory.d
-%dir %{_sysconfdir}/polkit-1/nullbackend.conf.d
-
-# The directory /var/lib/polkit-1 must be owned
-# by root and have mode 700
-%attr(700,root,root) %dir /var/lib/polkit-1
-
-%dir /var/lib/polkit-1/localauthority
-%dir /var/lib/polkit-1/localauthority/10-vendor.d
-%dir /var/lib/polkit-1/localauthority/20-org.d
-%dir /var/lib/polkit-1/localauthority/30-site.d
-%dir /var/lib/polkit-1/localauthority/50-local.d
-%dir /var/lib/polkit-1/localauthority/90-mandatory.d
-
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/polkit-1/localauthority.conf.d/50-localauthority.conf
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/polkit-1/nullbackend.conf.d/50-nullbackend.conf
-/etc/dbus-1/system.d/org.freedesktop.PolicyKit1.conf
-/etc/pam.d/polkit-1
-
-# The file /usr/bin/pkexec must be owned by root and
-# have mode 4755 (setuid root binary)
+# The file %{_bindir}/pkexec must be owned by root and
+# mode 4755 (setuid root binary)
 %attr(4755,root,root) %{_bindir}/pkexec
-
-# The file /usr/lib/polkit/polkit-agent-helper-1 must be owned
-# by root and have mode 4755 (setuid root binary)
-%attr(4755,root,root) %{_libexecdir}/polkit-agent-helper-1
 
 %attr(755,root,root) %{_bindir}/pkaction
 %attr(755,root,root) %{_bindir}/pkcheck
 %attr(755,root,root) %{_bindir}/pkttyagent
-%attr(755,root,root) %{_libdir}/polkit-1/extensions/libnullbackend.so
+
+# The file %{_libexecdir}/polkit-agent-helper-1 must be owned
+# root and have mode 4755 (setuid root binary)
+%attr(4755,root,root) %{_libexecdir}/polkit-agent-helper-1
+
+%dir %{_libexecdir}
 %attr(755,root,root) %{_libexecdir}/polkitd
 
-%{_datadir}/dbus-1/system-services/org.freedesktop.PolicyKit1.service
+# The directory /etc/polkit-1/rules.d must be owned
+# by user 'polkitd' and have mode 700
+%attr(700,polkitd,root) /etc/polkit-1/rules.d
+
+%dir /etc/polkit-1
+/etc/polkit-1/rules.d/50-default.rules
+
+%dir %{_datadir}/polkit-1
+%dir %{_datadir}/polkit-1/actions
 %{_datadir}/polkit-1/actions/org.freedesktop.policykit.policy
+
+# The directory %{_datadir}/polkit-1/rules.d must be owned
+# by user 'polkitd' and have mode 700
+%attr(700,polkitd,root) %dir %{_datadir}/polkit-1/rules.d
+
+/etc/dbus-1/system.d/org.freedesktop.PolicyKit1.conf
+/etc/pam.d/polkit-1
+%{_datadir}/dbus-1/system-services/org.freedesktop.PolicyKit1.service
+%{systemdunitdir}/polkit.service
 
 %{_mandir}/man1/pkaction.1*
 %{_mandir}/man1/pkcheck.1*
 %{_mandir}/man1/pkexec.1*
 %{_mandir}/man1/pkttyagent.1*
-%{_mandir}/man8/pklocalauthority.8*
 %{_mandir}/man8/polkit.8*
 %{_mandir}/man8/polkitd.8*
 
@@ -149,28 +152,18 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 # notes which license applies to which package part, AFL text (and GPL text copy)
 %doc COPYING
-%dir %{_datadir}/polkit-1
-%dir %{_datadir}/polkit-1/actions
-%dir %{_libdir}/polkit-1
-%dir %{_libdir}/polkit-1/extensions
-%dir %{_libexecdir}
-
 %attr(755,root,root) %ghost %{_libdir}/libpolkit-agent-1.so.?
-%attr(755,root,root) %ghost %{_libdir}/libpolkit-backend-1.so.?
 %attr(755,root,root) %ghost %{_libdir}/libpolkit-gobject-1.so.?
 %attr(755,root,root) %{_libdir}/libpolkit-agent-1.so.*.*.*
-%attr(755,root,root) %{_libdir}/libpolkit-backend-1.so.*.*.*
 %attr(755,root,root) %{_libdir}/libpolkit-gobject-1.so.*.*.*
 %{_libdir}/girepository-1.0/*.typelib
 
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libpolkit-agent-1.so
-%attr(755,root,root) %{_libdir}/libpolkit-backend-1.so
 %attr(755,root,root) %{_libdir}/libpolkit-gobject-1.so
 %{_includedir}/polkit-1
 %{_pkgconfigdir}/polkit-agent-1.pc
-%{_pkgconfigdir}/polkit-backend-1.pc
 %{_pkgconfigdir}/polkit-gobject-1.pc
 %{_datadir}/gir-1.0/Polkit-1.0.gir
 %{_datadir}/gir-1.0/PolkitAgent-1.0.gir
