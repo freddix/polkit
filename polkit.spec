@@ -1,14 +1,12 @@
 Summary:	A framework for defining policy for system-wide components
 Name:		polkit
-Version:	0.107
-Release:	1
+Version:	0.108
+Release:	2
 License:	MIT
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/polkit/releases/%{name}-%{version}.tar.gz
-# Source0-md5:	0e4f9c53f43fd1b25ac3f0d2e09b2ae1
+# Source0-md5:	55cd17b20030d895a7ecf1b9c9b32fb6
 Source1:	%{name}.pamd
-Patch0:		%{name}-avoid-crashing-if-initializing-the-server-object-fails.patch
-Patch1:		%{name}-fall-back-to-uid0-if-no-admin-users-are-available.patch
 URL:		http://people.freedesktop.org/~david/polkit-spec.html
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -55,8 +53,10 @@ PolicyKit API documentation.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
+
+# https://bugs.freedesktop.org/show_bug.cgi?id=57146
+%{__sed} -i "s|libmozjs185.so|libmozjs185.so.1|" \
+	src/polkitbackend/polkitbackendjsauthority.c
 
 %build
 %{__libtoolize}
