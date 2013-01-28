@@ -1,11 +1,11 @@
 Summary:	A framework for defining policy for system-wide components
 Name:		polkit
-Version:	0.108
-Release:	2
+Version:	0.110
+Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/polkit/releases/%{name}-%{version}.tar.gz
-# Source0-md5:	55cd17b20030d895a7ecf1b9c9b32fb6
+# Source0-md5:	06e0d3b72e566ac277fc35c8206d2a28
 Source1:	%{name}.pamd
 URL:		http://people.freedesktop.org/~david/polkit-spec.html
 BuildRequires:	autoconf
@@ -19,6 +19,7 @@ BuildRequires:	pam-devel
 BuildRequires:	pkg-config
 BuildRequires:	systemd-devel
 Requires:	%{name}-libs = %{version}-%{release}
+Requires:	js
 Requires:	systemd
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -53,10 +54,6 @@ PolicyKit API documentation.
 
 %prep
 %setup -q
-
-# https://bugs.freedesktop.org/show_bug.cgi?id=57146
-%{__sed} -i "s|libmozjs185.so|libmozjs185.so.1|" \
-	src/polkitbackend/polkitbackendjsauthority.c
 
 %build
 %{__libtoolize}
