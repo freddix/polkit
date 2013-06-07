@@ -1,0 +1,21 @@
+diff -aurN polkit-0.111.orig/configure.ac polkit-0.111/configure.ac
+--- polkit-0.111.orig/configure.ac	2013-06-07 21:36:17.925569383 +0200
++++ polkit-0.111/configure.ac	2013-06-07 21:36:49.154918498 +0200
+@@ -196,7 +196,7 @@
+       AS_IF([test "$enable_libsystemd_login" = "yes"], [
+         AC_MSG_WARN([libsystemd-login requested but system does not appear to be using systemd])
+       ], [
+-        AC_MSG_ERROR([libsystemd-login autoconfigured, but system does not appear to use systemd])
++        AC_MSG_WARN([libsystemd-login autoconfigured, but system does not appear to use systemd])
+       ])
+     ])
+   ], [
+@@ -204,7 +204,7 @@
+       AS_IF([test "$enable_libsystemd_login" = "no" ], [
+         AC_MSG_WARN([ConsoleKit requested but system appears to use systemd])
+       ], [
+-        AC_MSG_ERROR([ConsoleKit autoconfigured, but systemd is in use (missing libsystemd-login pkg-config?)])
++        AC_MSG_WARN([ConsoleKit autoconfigured, but systemd is in use (missing libsystemd-login pkg-config?)])
+       ])
+     ])
+   ])
