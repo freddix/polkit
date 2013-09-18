@@ -1,11 +1,11 @@
 Summary:	A framework for defining policy for system-wide components
 Name:		polkit
-Version:	0.111
-Release:	2
+Version:	0.112
+Release:	1
 License:	MIT
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/polkit/releases/%{name}-%{version}.tar.gz
-# Source0-md5:	81b116edf986d8e13502929a171f4e0d
+# Source0-md5:	b0f2fa00a55f47c6a5d88e9b73f80127
 Source1:	%{name}.pamd
 Patch0:		%{name}-too-smart.patch
 URL:		http://people.freedesktop.org/~david/polkit-spec.html
