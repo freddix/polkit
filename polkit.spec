@@ -1,7 +1,7 @@
 Summary:	A framework for defining policy for system-wide components
 Name:		polkit
 Version:	0.112
-Release:	2
+Release:	3
 License:	MIT
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/polkit/releases/%{name}-%{version}.tar.gz
@@ -14,13 +14,13 @@ BuildRequires:	automake
 BuildRequires:	dbus-glib-devel
 BuildRequires:	expat-devel
 BuildRequires:	gobject-introspection-devel
-BuildRequires:	js-devel
+BuildRequires:	mozjs17-devel
 BuildRequires:	libtool
 BuildRequires:	pam-devel
 BuildRequires:	pkg-config
 BuildRequires:	systemd-devel
 Requires:	%{name}-libs = %{version}-%{release}
-Requires:	js
+Requires:	mozjs17
 Requires:	systemd
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -79,7 +79,7 @@ install -d $RPM_BUILD_ROOT%{_datadir}/polkit-1/actions
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-rm -f $RPM_BUILD_ROOT%{_libdir}/polkit-1/extensions/*.la
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/*.la
 
 install %{SOURCE1} $RPM_BUILD_ROOT/etc/pam.d/polkit-1
 
