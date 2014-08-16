@@ -1,7 +1,7 @@
 Summary:	A framework for defining policy for system-wide components
 Name:		polkit
 Version:	0.112
-Release:	3
+Release:	4
 License:	MIT
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/polkit/releases/%{name}-%{version}.tar.gz
