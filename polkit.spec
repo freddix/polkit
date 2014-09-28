@@ -1,7 +1,7 @@
 Summary:	A framework for defining policy for system-wide components
 Name:		polkit
 Version:	0.112
-Release:	4
+Release:	5
 License:	MIT
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/polkit/releases/%{name}-%{version}.tar.gz
@@ -11,7 +11,6 @@ Patch0:		%{name}-too-smart.patch
 URL:		http://people.freedesktop.org/~david/polkit-spec.html
 BuildRequires:	autoconf
 BuildRequires:	automake
-BuildRequires:	dbus-glib-devel
 BuildRequires:	expat-devel
 BuildRequires:	gobject-introspection-devel
 BuildRequires:	mozjs17-devel
@@ -24,7 +23,7 @@ Requires:	mozjs17
 Requires:	systemd
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_libexecdir	%{_prefix}/lib/%{name}-1
+%define		_libexecdir	%{_prefix}/lib/polkit-1
 
 %description
 PolicyKit is a framework for defining policy for system-wide
